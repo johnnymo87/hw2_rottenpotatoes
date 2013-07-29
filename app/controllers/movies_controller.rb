@@ -6,8 +6,15 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+  # This method call passes these functions to application_helper.rb
+  helper_method :sort_column, :sort_direction
+
   def index
-    @movies = Movie.all
+    if params[:sort]
+      @movies = Movie.order(sort_column + " " + sort_direction)
+    else
+      @movies = Movie.all
+    end
   end
 
   def new
@@ -38,4 +45,14 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  private
+
+  def sort_column
+    # This accessor method prevents SQL injection attacks.
+    %w[title rating release_date].include?(params[:sort]) ? params[:sort] : 'title'
+  end
+
+  def sort_direction
+    %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
+  end
 end
