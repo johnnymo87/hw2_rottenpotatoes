@@ -49,10 +49,14 @@ class MoviesController < ApplicationController
 
   def sort_column
     # This accessor method prevents SQL injection attacks.
-    %w[title rating release_date].include?(params[:sort]) ? params[:sort] : 'title'
+    if params[:sort]
+      %w[title rating release_date].include?(params[:sort]) ? params[:sort] : 'title'
+    end
   end
 
   def sort_direction
-    %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
+    if params[:direction]
+      %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
+    end
   end
 end
