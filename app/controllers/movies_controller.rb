@@ -10,11 +10,16 @@ class MoviesController < ApplicationController
   helper_method :sort_column, :sort_direction
 
   def index
-    if params[:sort]
-      @movies = Movie.order(sort_column + " " + sort_direction)
+    debugger
+    @selected_ratings = params[:ratings] || session[:ratings] || Movie::all_ratings
+    session[:ratings] = params[:ratings]
+    if params[:movies_sort]
+      @selected_sort = sort_column + " " + sort_direction
+      session[:movies_sort] = @selected_sort
     else
-      @movies = Movie.all
+      @selected_sort = session[:movies_sort] || 'id'
     end
+    @movies = Movie.where(:rating => @selected_ratings).order(@selected_sort).all
   end
 
   def new
@@ -29,6 +34,7 @@ class MoviesController < ApplicationController
 
   def edit
     @movie = Movie.find params[:id]
+    @all_ratings = Movie.all_ratings
   end
 
   def update
@@ -49,8 +55,8 @@ class MoviesController < ApplicationController
 
   def sort_column
     # This accessor method prevents SQL injection attacks.
-    if params[:sort]
-      %w[title rating release_date].include?(params[:sort]) ? params[:sort] : 'title'
+    if params[:movies_sort]
+      %w[title rating release_date].include?(params[:movies_sort]) ? params[:movies_sort] : 'title'
     end
   end
 

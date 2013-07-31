@@ -3,10 +3,17 @@
 
 %table#movies
   %thead
+    = form_tag movies_path, :method => :get do
+      Include:
+      - Movie::all_ratings.each do |rating|
+        = rating
+        = check_box_tag "ratings[]", rating, @selected_ratings.include?(rating)
+        -#= check_box_tag "ratings[#{rating}]"
+      = submit_tag 'Refresh'
     %tr
-      %th{ :class => ('hilite' if params[:sort] == 'title') }= sortable 'title'
-      %th{ :class => ('hilite' if params[:sort] == 'rating') }= sortable 'rating'
-      %th{ :class => ('hilite' if params[:sort] == 'release_date') }= sortable 'release_date', 'Release Date'
+      %th{ :class => ('hilite' if params[:movies_sort] == 'title') }= sortable 'title'
+      %th{ :class => ('hilite' if params[:movies_sort] == 'rating') }= sortable 'rating'
+      %th{ :class => ('hilite' if params[:movies_sort] == 'release_date') }= sortable 'release_date', 'Release Date'
       %th More Info
   %tbody
     - @movies.each do |movie|

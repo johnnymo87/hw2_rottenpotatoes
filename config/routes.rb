@@ -2,6 +2,7 @@ Rottenpotatoes::Application.routes.draw do
 
   resources :movies
   root :to => redirect('/movies')
+  resources :tasks, :collection => { :filter => :get }
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
