@@ -8,6 +8,25 @@ class MoviesController < ApplicationController
 
   def index
     #debugger
+    if params[:ratings].nil? && params[:sort].nil? && params[:direction].nil?
+      session[:ratings] = Movie::all_ratings
+      session[:sort] = 'id'
+      session[:direction] = 'asc'
+    end
+    if params[:ratings]
+      # stupid haml requirement makes me take params[:ratings] in a hash rather than an array
+      params[:ratings] = params[:ratings].keys
+      session[:ratings] = params[:ratings]
+    end
+    session[:sort] = params[:sort] if params[:sort]
+    session[:direction] = params[:direction] if params[:direction]
+    params[:ratings] ||= session[:ratings]
+    params[:sort] ||= session[:sort]
+    params[:direction] ||= session[:direction]
+
+
+
+    #debugger
     #if params[:ratings]
     #  session[:ratings] = @selected_ratings = params[:ratings]
     #else
@@ -18,12 +37,13 @@ class MoviesController < ApplicationController
     #else
     #  @selected_sort = session[:sort] || 'id'
     #end
-    params[:ratings] = params[:ratings].keys if params[:ratings]
-    session[:ratings] = params[:ratings] || session[:ratings] || Movie::all_ratings
-    session[:sort] = params[:sort] || session[:sort] || 'id'
-    session[:direction] = params[:direction] || session[:direction] || 'asc'
 
-    @movies = Movie.where(:rating => session[:ratings]).order(session[:sort] + " " + session[:direction]).all
+    #params[:ratings] = params[:ratings].keys if params[:ratings]
+    #session[:ratings] = params[:ratings] || session[:ratings] || Movie::all_ratings
+    #session[:sort] = params[:sort] || session[:sort] || 'id'
+    #session[:direction] = params[:direction] || session[:direction] || 'asc'
+
+    @movies = Movie.where(:rating => params[:ratings]).order(params[:sort] + " " + params[:direction]).all
   end
 
   def new

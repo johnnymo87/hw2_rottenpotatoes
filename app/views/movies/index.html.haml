@@ -3,16 +3,15 @@
 
 %table#movies
   %thead
-    = form_tag movies_path, :method => :get, :id => 'ratings_form' do
+    = form_tag movies_path, {:method => :get, :id => 'ratings_form'} do
       Include:
+      -#- debugger
       - Movie::all_ratings.each do |rating|
         = rating
-        -#= check_box_tag "ratings[]", rating, session[:ratings].include?(rating), :id => 'ratings_form'
-        = check_box_tag "ratings[#{rating}]", session[:ratings].include?(rating), :id => "ratings_#{rating}"
-      = submit_tag 'Refresh', :id => 'ratings_submit'
+        = check_box_tag("ratings[#{rating}]", value=1, checked=(params[:ratings].include?(rating)), options={:id => "ratings_#{rating}"})
+      = submit_tag 'Refresh', {:id => 'ratings_submit'}
     %tr
       - params[:sort] ||= session[:sort]
-      -#- debugger
       %th{ :class => ('hilite' if params[:sort] == 'title') }= sortable 'title'
       %th{ :class => ('hilite' if params[:sort] == 'rating') }= sortable 'rating'
       %th{ :class => ('hilite' if params[:sort] == 'release_date') }= sortable 'release_date', 'Release Date'
