@@ -6,20 +6,24 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  # This method call passes these functions to application_helper.rb
-  helper_method :sort_column, :sort_direction
-
   def index
-    debugger
-    @selected_ratings = params[:ratings] || session[:ratings] || Movie::all_ratings
-    session[:ratings] = params[:ratings]
-    if params[:movies_sort]
-      @selected_sort = sort_column + " " + sort_direction
-      session[:movies_sort] = @selected_sort
-    else
-      @selected_sort = session[:movies_sort] || 'id'
-    end
-    @movies = Movie.where(:rating => @selected_ratings).order(@selected_sort).all
+    #debugger
+    #if params[:ratings]
+    #  session[:ratings] = @selected_ratings = params[:ratings]
+    #else
+    #  @selected_ratings = session[:ratings] || Movie::all_ratings
+    #end
+    #if params[:sort]
+    #  session[:sort] = @selected_sort = params[:sort] + " " + params[:direction]
+    #else
+    #  @selected_sort = session[:sort] || 'id'
+    #end
+    params[:ratings] = params[:ratings].keys if params[:ratings]
+    session[:ratings] = params[:ratings] || session[:ratings] || Movie::all_ratings
+    session[:sort] = params[:sort] || session[:sort] || 'id'
+    session[:direction] = params[:direction] || session[:direction] || 'asc'
+
+    @movies = Movie.where(:rating => session[:ratings]).order(session[:sort] + " " + session[:direction]).all
   end
 
   def new
@@ -49,20 +53,5 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
-  end
-
-  private
-
-  def sort_column
-    # This accessor method prevents SQL injection attacks.
-    if params[:movies_sort]
-      %w[title rating release_date].include?(params[:movies_sort]) ? params[:movies_sort] : 'title'
-    end
-  end
-
-  def sort_direction
-    if params[:direction]
-      %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
-    end
   end
 end
