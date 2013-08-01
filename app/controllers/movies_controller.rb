@@ -8,42 +8,22 @@ class MoviesController < ApplicationController
 
   def index
     #debugger
-    if params[:ratings].nil? && params[:sort].nil? && params[:direction].nil?
-      session[:ratings] = Movie::all_ratings
-      session[:sort] = 'id'
-      session[:direction] = 'asc'
+    flag = false
+    params[:ratings] = params[:ratings].keys if params[:ratings].is_a?(Hash)
+    [:ratings, :sort, :direction].each do |var|
+      #params[var] ? session[var] = params[var] : params[var] = session[var]
+      if params[var]
+        session[var] = params[var]
+      else
+        flag = true
+        params[var] = session[var]
+      end
     end
-    if params[:ratings]
-      # stupid haml requirement makes me take params[:ratings] in a hash rather than an array
-      params[:ratings] = params[:ratings].keys
-      session[:ratings] = params[:ratings]
-    end
-    session[:sort] = params[:sort] if params[:sort]
-    session[:direction] = params[:direction] if params[:direction]
-    params[:ratings] ||= session[:ratings]
-    params[:sort] ||= session[:sort]
-    params[:direction] ||= session[:direction]
-
-
-
-    #debugger
-    #if params[:ratings]
-    #  session[:ratings] = @selected_ratings = params[:ratings]
-    #else
-    #  @selected_ratings = session[:ratings] || Movie::all_ratings
-    #end
-    #if params[:sort]
-    #  session[:sort] = @selected_sort = params[:sort] + " " + params[:direction]
-    #else
-    #  @selected_sort = session[:sort] || 'id'
-    #end
-
-    #params[:ratings] = params[:ratings].keys if params[:ratings]
-    #session[:ratings] = params[:ratings] || session[:ratings] || Movie::all_ratings
-    #session[:sort] = params[:sort] || session[:sort] || 'id'
-    #session[:direction] = params[:direction] || session[:direction] || 'asc'
-
     @movies = Movie.where(:rating => params[:ratings]).order(params[:sort] + " " + params[:direction]).all
+    if flag
+      flash.keep
+      redirect_to movies_path(@movies, params)
+    end
   end
 
   def new
