@@ -8,17 +8,15 @@ class MoviesController < ApplicationController
 
   def index
     #debugger
-    session.merge!({:ratings => Movie::all_ratings, :sort => 'id', :direction => 'asc'}) if session.nil?
+    if session.empty?
+      session[:ratings] = Movie::all_ratings
+      session[:sort] = 'id'
+      session[:direction] = 'asc'
+    end
     params[:ratings] = params[:ratings].keys if params[:ratings].is_a?(Hash)
-    flag = false
+    flag = nil
     [:ratings, :sort, :direction].each do |var|
-      #params[var] ? session[var] = params[var] : params[var] = session[var]
-      if params[var]
-        session[var] = params[var]
-      else
-        flag = true
-        params[var] = session[var]
-      end
+      params[var] ? session[var] = params[var] : flag = params[var] = session[var]
     end
     @movies = Movie.where(:rating => params[:ratings]).order(params[:sort] + " " + params[:direction]).all
     if flag
